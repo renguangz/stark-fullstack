@@ -1,0 +1,44 @@
+version: "3"
+services:
+  server:
+    # 使用建立的 Dockerfile
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nestjs_app
+    # 將主機的 3000 埠對應到容器的 3000 埠
+    ports:
+      - "3000:3000"
+    # 設定環境變數，供 NestJS 使用
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: gan0Teacher
+    # 設定容器之間的連接，這裡我們將應用程式容器與 MySQL 容器放在同一個網路中
+    networks:
+      - app_network
+  mysql:
+    image: mysql:8.0
+    restart: always
+    container_name: mysql8
+    # 將主機的 3319 埠對應到容器的 3306 埠
+    ports:
+      - "3319:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: gan0Teacher
+      MYSQL_DATABASE: stark_todolist
+    # 設定容器之間的連接，這裡我們將 MySQL 容器與應用程式容器放在同一個網路中
+    networks:
+      - app_network
+  client:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:3000"
+    networks:
+      - app_network
+
+networks:
+  app_network:
